@@ -6,6 +6,8 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog//fmt/fmt.h"
 
+#include <QHostAddress>
+#include "antcpserver.h"
 
 //日志
 using anlogger = std::shared_ptr<spdlog::logger>;
@@ -75,6 +77,9 @@ int main(int argc, char *argv[])
 
     QCoreApplication a(argc, argv);
 
+    //启动服务
+    anTcpServer server;
+    server.listen(QHostAddress::Any, 95555);
 
     return a.exec();
 }

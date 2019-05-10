@@ -22,6 +22,7 @@ public:
 
     QThread* getThread();
     void removeThread(QThread *th);
+    void clear();
 
 private:
     unsigned int size_;

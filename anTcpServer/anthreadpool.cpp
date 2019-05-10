@@ -73,3 +73,10 @@ void anThreadPool::removeThread(QThread *th)
 
     }
 }
+
+void anThreadPool::clear()
+{
+    for(auto it = thread_pool_.begin();it!=thread_pool_.end();++it){
+        it.value()=0;
+    }
+}
