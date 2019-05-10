@@ -63,14 +63,16 @@ void anThreadPool::removeThread(QThread *th)
     auto it = thread_pool_.find(th);
     if (it!=thread_pool_.end()){
 
-        if(0==(--it.value())){
+        --it.value();
+        /*
+        if(0==(it.value())){
             thread_pool_.remove(th);
 
             th->exit(0);
             th->wait(3000);
             delete th;
         }
-
+        */
     }
 }
 
