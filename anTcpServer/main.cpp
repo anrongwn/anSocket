@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     //启动服务
     anTcpServer server;
-    server.listen(QHostAddress::Any, 95555);
+    server.listen(QHostAddress::Any, 9555);
 
     return a.exec();
 }

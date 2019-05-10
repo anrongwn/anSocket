@@ -47,6 +47,8 @@ void anTcpServer::incomingConnection(qintptr socketDescriptor)
        auto th = anThreadPool::instance().getThread();
        auto tcpTemp = new anTcpSocket(nullptr);
        tcpTemp->setSocketDescriptor(socketDescriptor);
+       tcpTemp->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+       tcpTemp->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 
        QString ip =  tcpTemp->peerAddress().toString();
        qint16 port = tcpTemp->peerPort();

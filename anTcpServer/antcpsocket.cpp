@@ -1,6 +1,7 @@
 #include "antcpsocket.h"
 #include <QElapsedTimer>
 #include <QTime>
+#include <QDateTime>
 #include <QHostAddress>
 
 anTcpSocket::anTcpSocket(QObject *parent):QTcpSocket(parent), socketDescriptor_(0)
@@ -51,10 +52,10 @@ QByteArray anTcpSocket::handler(QByteArray data, const QString &ip, const qint16
     QElapsedTimer tm;
     tm.start();
 
-    while(tm.elapsed() < 100){
+    while(tm.elapsed() < 1){
 
     }
 
-    data = ip.toLocal8Bit() + " " + QByteArray::number(port) + " " + data + " " + QTime::currentTime().toString().toLocal8Bit();
+    data = "<<<< " + ip.toLocal8Bit() + " " + QByteArray::number(port) + " " + data + " " +  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ").toLocal8Bit();
     return data;
 }
