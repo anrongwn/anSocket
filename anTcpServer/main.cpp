@@ -17,7 +17,10 @@ anlogger& getlogger() {
     static anlogger g_anlog;
     if (!g_anlog) {
 
-        std::string logpath(R"(D:\MyTest\2019_Qt\anSocket\logs\anTcpServer)");
+        QString path = QCoreApplication::applicationDirPath();
+        path+="\\logs\\anTcpServer";
+        std::string logpath=path.toStdString();
+        //std::string logpath(R"(D:\MyTest\2019_Qt\anSocket\logs\anTcpServer)");
         logpath += ".log";
 
         //是否已启动日志线程池?

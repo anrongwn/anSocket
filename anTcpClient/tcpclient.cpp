@@ -8,6 +8,13 @@ TcpClient::TcpClient(QObject *parent):QTcpSocket(parent)
 
 TcpClient::~TcpClient()
 {
+    QObject::disconnect();
+
+    if ((this->isValid())){
+        this->disconnectFromHost();
+        if (QAbstractSocket::UnconnectedState!=this->state())
+            this->waitForDisconnected(1000);
+    }
 }
 
 void TcpClient::onError(QAbstractSocket::SocketError socketError)
@@ -15,6 +22,12 @@ void TcpClient::onError(QAbstractSocket::SocketError socketError)
     QString str(QString::number(this->peerPort()));
     str += " : erro : ";
     str += this->errorString();
+
+    if (QAbstractSocket::RemoteHostClosedError==socketError){
+        this->disconnectFromHost();
+        if (QAbstractSocket::UnconnectedState!=this->state())
+            this->waitForDisconnected(1000);
+    }
 
     emit clientError(str);
 }
