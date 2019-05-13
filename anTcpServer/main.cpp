@@ -1,5 +1,7 @@
 #include <QCoreApplication>
 #include <QTextStream>
+#include <QDebug>
+#include <QThread>
 #include "spdlog/spdlog.h"
 #include "spdlog//async.h"
 #include "spdlog/sinks/daily_file_sink.h"
@@ -79,7 +81,14 @@ int main(int argc, char *argv[])
 
     //启动服务
     anTcpServer server;
-    server.listen(QHostAddress::Any, 9555);
+    bool r = server.listen(QHostAddress::Any, 9555);
+    if (r){
+        qDebug().noquote() << "main() listen : 9555 succeed. tid=" << QThread::currentThreadId();
+    }
+    else{
+        qDebug().noquote() << "main() listen : 9555 failed. tid=" << QThread::currentThreadId();
+        return(-1);
+    }
 
     return a.exec();
 }

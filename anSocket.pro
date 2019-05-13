@@ -1,5 +1,10 @@
 TEMPLATE = subdirs
 
+CONFIG += ordered
+
 SUBDIRS += \
-    anTcpServer \
-    anTcpClient
+    anTcpClient \
+    anTcpServer
+
+
+

@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include <QTextStream>
+#include <QDebug>
 
 anThreadPool::~anThreadPool()
 {
@@ -25,14 +27,22 @@ void anThreadPool::initThreadPool(const unsigned int size)
 {
     if (init_flag_) return;
 
+    QString logdata;
+    QTextStream log(&logdata);
+
     size_ = (size>0?size:QThread::idealThreadCount());
     init_flag_=true;
 
+    log<<"anThreadPool::initThreadPool("<<size_<<")";
     for(unsigned int i=0;i<size_;++i){
         QThread * th = new QThread(nullptr);
         thread_pool_.insert(th, 0);
         th->start();
+
+        log<<",th="<<th;
     }
+
+    qDebug().noquote()<<logdata;
 }
 
 anThreadPool &anThreadPool::instance()
@@ -47,6 +57,10 @@ QThread *anThreadPool::getThread()
         initThreadPool(QThread::idealThreadCount());
     }
 
+    QString logdata;
+    QTextStream log(&logdata);
+
+    log<<"anThreadPool::getThread()";
     auto nit = thread_pool_.begin();
     for(auto it=thread_pool_.begin();it!=thread_pool_.end();++it){
         if (it.value() < nit.value()){
@@ -55,16 +69,26 @@ QThread *anThreadPool::getThread()
     }
 
     nit.value()++;
+
+    log<<",th="<<nit.key()<<",value="<<nit.value();
+
+    qDebug().noquote().noquote()<<logdata;
+
     return nit.key();
 }
 
 void anThreadPool::removeThread(QThread *th)
 {
+    QString logdata;
+    QTextStream log(&logdata);
+
+    log<<"anThreadPool::removeThread(th="<<th<<"),value=";
+
     auto it = thread_pool_.find(th);
     if (it!=thread_pool_.end()){
 
         --it.value();
-        /*
+        /*//
         if(0==(it.value())){
             thread_pool_.remove(th);
 
@@ -73,7 +97,10 @@ void anThreadPool::removeThread(QThread *th)
             delete th;
         }
         */
+
+        log<<it.value();
     }
+    qDebug().noquote()<<logdata;
 }
 
 void anThreadPool::clear()

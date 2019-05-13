@@ -14,6 +14,8 @@ public:
 signals:
     void sockDisConnect(const int ,const QString &,const quint16, QThread *);//通知服务端线程池断开连接计数
 
+public:
+    bool setSocketDescriptor(qintptr socketDescriptor, QAbstractSocket::SocketState socketState = ConnectedState, QIODevice::OpenMode openMode = ReadWrite) override;
 public slots:
     void onReadData();
     void onDisconnected();
@@ -22,7 +24,7 @@ public slots:
     void onDisConTcp(const qintptr id);
 
 private:
-    QByteArray handler(QByteArray data, const QString &ip, const qint16 port);
+    QByteArray handler(QByteArray data, const QString &ip, const quint16 port);
 private:
     qintptr socketDescriptor_;
     QQueue<QByteArray> datas_;
