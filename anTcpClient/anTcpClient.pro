@@ -31,7 +31,8 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    tcpclient.h
+    tcpclient.h \
+    antlv.h
 
 FORMS += \
         mainwindow.ui

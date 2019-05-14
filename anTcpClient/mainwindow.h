@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "tcpclient.h"
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -31,10 +32,15 @@ private slots:
     void on_pushButton_send_clicked();
     void on_stateChanged(QAbstractSocket::SocketState socketState);
 
+    void on_pushButton_network_clicked();
+
+    void on_heartbeat_timeout();
+
 private:
     Ui::MainWindow *ui;
 
     TcpClient client_;
+    QTimer * heartbeat_timer_;    //HeartBeat
 };
 
 #endif // MAINWINDOW_H

@@ -137,6 +137,19 @@
       <string>Send</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_network">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>10</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>NetWork</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">

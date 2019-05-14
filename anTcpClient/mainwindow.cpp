@@ -7,12 +7,19 @@
 #include <QByteArray>
 #include <QTime>
 #include <QDateTime>
+#include <QNetworkInterface>
+#include <QList>
+#include "antlv.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    //
+    heartbeat_timer_ = new QTimer(this);
+    QObject::connect(heartbeat_timer_, &QTimer::timeout, this, &MainWindow::on_heartbeat_timeout);
 
     QObject::connect(this, &MainWindow::connectHost, &client_, &TcpClient::onConnectHost);
     QObject::connect(&client_, &TcpClient::recvData, this, &MainWindow::on_recvData);
@@ -75,6 +82,9 @@ void MainWindow::on_connected(const int port)
     ui->pushButton_connect->setDisabled(true);
     ui->pushButton_disconnect->setEnabled(true);
     ui->pushButton_send->setEnabled(true);
+
+    //启动心跳检测
+    heartbeat_timer_->start(3000);
 }
 
 void MainWindow::on_pushButton_disconnect_clicked()
@@ -86,6 +96,9 @@ void MainWindow::on_pushButton_disconnect_clicked()
         ui->pushButton_connect->setEnabled(true);
         ui->pushButton_disconnect->setEnabled(false);
         ui->pushButton_send->setEnabled(false);
+
+        //
+        heartbeat_timer_->stop();
 
     }
 
@@ -102,17 +115,62 @@ void MainWindow::on_pushButton_send_clicked()
     data+=" >>>> ";
     data+=ui->textEdit_data->toPlainText();
 
-    client_.write(data.toLocal8Bit());
+    QByteArray cmd = antlv::make_cmd_package(data.toLocal8Bit(), data.length());
+
+    client_.write(cmd);
+    //client_.write(data.toLocal8Bit());
     if (client_.waitForBytesWritten(1000)){
         ui->textEdit_echo->append(QString("send data:%1 >>>succeed.").arg(data));
     }
     else {
         ui->textEdit_echo->append(QString("send data:1% >>>failed.").arg(data));
     }
+    antlv::free_raw_data(cmd);
 
 }
 
 void MainWindow::on_stateChanged(QAbstractSocket::SocketState socketState)
 {
     ui->textEdit_echo->append(QString("socket state changed : %1").arg(socketState));
+}
+
+void MainWindow::on_pushButton_network_clicked()
+{
+    QList<QNetworkInterface> ifaces = QNetworkInterface::allInterfaces();
+    bool isConnected = false;
+
+    for (int i = 0; i < ifaces.count(); i++)
+    {
+        QNetworkInterface iface = ifaces.at(i);
+
+        QString addr = iface.hardwareAddress();
+        QString name = iface.humanReadableName();
+
+        if ( iface.flags().testFlag(QNetworkInterface::IsUp)
+             && iface.flags().testFlag(QNetworkInterface::IsRunning)
+             && !iface.flags().testFlag(QNetworkInterface::IsLoopBack)
+             )
+        {
+
+            // this loop is important
+            for (int j=0; j<iface.addressEntries().count(); j++)
+            {
+                // we have an interface that is up, and has an ip address
+                // therefore the link is present
+
+                // we will only enable this check on first positive,
+                // all later results are incorrect
+                if (isConnected == false)
+                    isConnected = true;
+            }
+        }
+
+    }
+
+
+}
+
+void MainWindow::on_heartbeat_timeout()
+{
+
 }
