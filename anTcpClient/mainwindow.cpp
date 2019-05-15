@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //
     heartbeat_timer_ = new QTimer(this);
-    QObject::connect(heartbeat_timer_, &QTimer::timeout, this, &MainWindow::on_heartbeat_timeout);
+    QObject::connect(heartbeat_timer_, &QTimer::timeout, this, &MainWindow::heartbeat);
+
 
     QObject::connect(this, &MainWindow::connectHost, &client_, &TcpClient::onConnectHost);
     QObject::connect(&client_, &TcpClient::recvData, this, &MainWindow::on_recvData);
@@ -125,7 +126,8 @@ void MainWindow::on_pushButton_send_clicked()
     else {
         ui->textEdit_echo->append(QString("send data:1% >>>failed.").arg(data));
     }
-    antlv::free_raw_data(cmd);
+
+    //antlv::free_raw_data(cmd);
 
 }
 
@@ -170,7 +172,27 @@ void MainWindow::on_pushButton_network_clicked()
 
 }
 
-void MainWindow::on_heartbeat_timeout()
+void MainWindow::heartbeat()
 {
+    QByteArray cmd = antlv::make_heartbeat_package();
+
+    client_.write(cmd);
+    if (client_.waitForBytesWritten(1000)){
+        //ui->textEdit_echo->append(QString("send data:%1 >>>succeed.").arg(data));
+
+        /*
+        QByteArray resp = client_.readAll();
+        if (!client_.waitForReadyRead(3000)){
+            ui->textEdit_echo->append(QString("recv heartbeat package failed."));
+        }
+        */
+
+    }
+    else {
+        ui->textEdit_echo->append(QString("send heartbeat package failed."));
+    }
+
+    //antlv::free_raw_data(cmd);
+
 
 }

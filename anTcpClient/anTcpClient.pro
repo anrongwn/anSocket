@@ -32,10 +32,11 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     tcpclient.h \
-    antlv.h
 
 FORMS += \
         mainwindow.ui
+
+INCLUDEPATH += $$PWD/../antlv
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

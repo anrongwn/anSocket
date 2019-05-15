@@ -21,8 +21,8 @@ SOURCES += \
     antcpserver.cpp \
     antcpsocket.cpp
 
-win32:INCLUDEPATH += $$PWD/deps/include
-
+INCLUDEPATH += $$PWD/deps/include
+INCLUDEPATH += $$PWD/../antlv
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

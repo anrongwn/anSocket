@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QByteArray>
+#include "antlv.h"
 
 anTcpSocket::anTcpSocket(QObject *parent):QTcpSocket(parent), socketDescriptor_(0)
 {
@@ -31,20 +32,36 @@ void anTcpSocket::onReadData()
     QString logdata;
     QTextStream log(&logdata);
 
-    auto data = this->readAll();
+    log<<"anTcpSocket::onReadData(), tcp="<<this;
 
-    log<<"anTcpSocket::onReadData(), tcp="<<this<<",data="<<data;
+    datas_ += this->readAll();
 
-    data  = handler(data, this->peerAddress().toString(), this->peerPort());
-
-
-    this->write(data);
-    bool r = this->waitForBytesWritten(1000);
-    if (r){
-        log<<", echo write:"<<data;
+    QByteArray data;
+    antlv::antlv_type type = antlv::parse_package(datas_, data);
+    switch (type){
+    case antlv::package_type::heart_beat:
+        log<<", recv heartbeat package,";
+        break;
+    case antlv::package_type::cmd_requst:
+        log <<", recv data: "<<data;
+        data  = handler(data, this->peerAddress().toString(), this->peerPort());
+        break;
+    case antlv::package_type::unknow:
+    default:
+        log <<", recv unknow package. ";
+        break;
     }
-    else{
-        log<<", echo write failed.";
+
+    if (!data.isEmpty())
+    {
+        this->write(data);
+        bool r = this->waitForBytesWritten(1000);
+        if (r){
+            log<<", echo write:" << data;
+        }
+        else{
+            log<<", echo write failed.";
+        }
     }
     log<<",th="<<QThread::currentThread();
 

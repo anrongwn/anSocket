@@ -27,7 +27,7 @@ private:
     QByteArray handler(QByteArray data, const QString &ip, const quint16 port);
 private:
     qintptr socketDescriptor_;
-    QQueue<QByteArray> datas_;
+    QByteArray datas_;
 
 };
 

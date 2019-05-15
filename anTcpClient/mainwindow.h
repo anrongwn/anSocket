@@ -34,7 +34,7 @@ private slots:
 
     void on_pushButton_network_clicked();
 
-    void on_heartbeat_timeout();
+    void heartbeat();
 
 private:
     Ui::MainWindow *ui;
