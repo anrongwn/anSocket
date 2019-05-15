@@ -77,6 +77,9 @@ void anTcpSocket::onDisconnected()
 
     emit sockDisConnect(socketDescriptor_, this->peerAddress().toString(), this->peerPort(), QThread::currentThread());//发送断开连接的用户信息
 
+    //有延迟delete disconnet's tcp 的风险
+    this->deleteLater();
+
     qDebug().noquote() << logdata;
 }
 

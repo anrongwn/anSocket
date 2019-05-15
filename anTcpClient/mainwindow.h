@@ -35,12 +35,16 @@ private slots:
     void on_pushButton_network_clicked();
 
     void heartbeat();
+    void senddata();
+
+    void on_pushButton_send_2_clicked();
 
 private:
     Ui::MainWindow *ui;
 
     TcpClient client_;
     QTimer * heartbeat_timer_;    //HeartBeat
+    QTimer * senddata_timer_;     //
 };
 
 #endif // MAINWINDOW_H

@@ -36,6 +36,7 @@ void TcpClient::onReadData()
 {
     QString str(QString::number(this->peerPort()));
     str += " : ";
+
     str += this->readAll();
 
     emit this->recvData(str);

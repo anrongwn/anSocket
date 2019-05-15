@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //
     heartbeat_timer_ = new QTimer(this);
     QObject::connect(heartbeat_timer_, &QTimer::timeout, this, &MainWindow::heartbeat);
+    senddata_timer_ = new QTimer(this);
+    QObject::connect(senddata_timer_, &QTimer::timeout, this, &MainWindow::senddata);
 
 
     QObject::connect(this, &MainWindow::connectHost, &client_, &TcpClient::onConnectHost);
@@ -40,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_disconnect->setDisabled(true);
     ui->pushButton_send->setDisabled(true);
     ui->textEdit_echo->setReadOnly(true);
+    ui->pushButton_send_2->setEnabled(false);
 
 
 
@@ -83,6 +86,7 @@ void MainWindow::on_connected(const int port)
     ui->pushButton_connect->setDisabled(true);
     ui->pushButton_disconnect->setEnabled(true);
     ui->pushButton_send->setEnabled(true);
+    ui->pushButton_send_2->setEnabled(true);
 
     //启动心跳检测
     heartbeat_timer_->start(3000);
@@ -97,9 +101,11 @@ void MainWindow::on_pushButton_disconnect_clicked()
         ui->pushButton_connect->setEnabled(true);
         ui->pushButton_disconnect->setEnabled(false);
         ui->pushButton_send->setEnabled(false);
+        ui->pushButton_send_2->setEnabled(false);
 
         //
         heartbeat_timer_->stop();
+        senddata_timer_->stop();
 
     }
 
@@ -127,7 +133,6 @@ void MainWindow::on_pushButton_send_clicked()
         ui->textEdit_echo->append(QString("send data:1% >>>failed.").arg(data));
     }
 
-    //antlv::free_raw_data(cmd);
 
 }
 
@@ -195,4 +200,16 @@ void MainWindow::heartbeat()
     //antlv::free_raw_data(cmd);
 
 
+}
+
+void MainWindow::senddata()
+{
+    on_pushButton_send_clicked();
+}
+
+void MainWindow::on_pushButton_send_2_clicked()
+{
+    if (senddata_timer_->isActive()) return ;
+
+    senddata_timer_->start(10);
 }
