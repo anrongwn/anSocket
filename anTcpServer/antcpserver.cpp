@@ -43,13 +43,13 @@ void anTcpServer::onSockDisConnect(int handle, const QString &ip, quint16 port, 
     log<<"anTcpServer::onSockDisConnect(socketDescriptor="<<handle<<",ip="<<ip<<",port="<<port<<",th="<<th<<").";
 
     client_.remove(handle);//连接管理中移除断开连接的socket
-    anThreadPool::instance().removeThread(th); //告诉线程管理类那个线程里的连接断开了
 
-    emit sockDisConnect(handle,ip,port);
+    anThreadPool::instance().removeThread(th); //告诉线程管理类那个线程里的连接断开了
 
     qDebug().noquote()<<logdata;
 
-
+    //通知tcpsocket 做清理
+    emit sentDisConnect(handle);
 }
 
 void anTcpServer::incomingConnection(qintptr socketDescriptor)

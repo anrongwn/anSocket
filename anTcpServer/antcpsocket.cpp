@@ -74,13 +74,9 @@ void anTcpSocket::onDisconnected()
     QTextStream log(&logdata);
 
     log<<"anTcpSocket::onDisconnected(),tcp="<< this<<",socketDescriptor="<<socketDescriptor_<<",th="<<QThread::currentThread();
+    qDebug().noquote() << logdata;
 
     emit sockDisConnect(socketDescriptor_, this->peerAddress().toString(), this->peerPort(), QThread::currentThread());//发送断开连接的用户信息
-
-    //有延迟delete disconnet's tcp 的风险
-    this->deleteLater();
-
-    qDebug().noquote() << logdata;
 }
 
 void anTcpSocket::onSentData(const QByteArray &data, const qintptr id)
@@ -110,16 +106,22 @@ void anTcpSocket::onDisConTcp(const qintptr id)
     QString logdata;
     QTextStream log(&logdata);
 
-    log<<"anTcpSocket::onSentData(),tcp"<<(void*)this<<", socketDescriptor"<<id<<",th="<<QThread::currentThread();
+    log<<"anTcpSocket::onDisConTcp(),tcp="<<(void*)this<<", socketDescriptor="<<id<<",th="<<QThread::currentThread();
 
+    //断开所有信号连接
+    QObject::disconnect(this, nullptr);
 
     if (id == socketDescriptor_){
-        this->disconnectFromHost();
+        //this->disconnectFromHost();
     }else if(-1==id){
-        QObject::disconnect(this, &QTcpSocket::disconnected, this, &anTcpSocket::onDisconnected);
+        //QObject::disconnect(this, &QTcpSocket::disconnected, this, &anTcpSocket::onDisconnected);
         this->disconnectFromHost();
-        this->deleteLater();
     }
+
+    //有延迟delete disconnet's tcp 的风险(anTcpSocket 内存泄漏)
+    this->deleteLater();
+
+
     qDebug().noquote() << logdata;
 }
 
