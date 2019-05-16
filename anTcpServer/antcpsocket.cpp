@@ -113,18 +113,22 @@ void anTcpSocket::onEnd(const qintptr id)
 
     log<<"anTcpSocket::onEnd(),tcp="<<(void*)this<<", socketDescriptor="<<id<<",th="<<QThread::currentThread();
 
-    //断开所有信号连接
-    QObject::disconnect(this, nullptr);
-
     if (id == socketDescriptor_){
-        //this->disconnectFromHost();
+
+        //有延迟delete disconnet's tcp 的风险(anTcpSocket 内存泄漏)
+        this->deleteLater();
+
     }else if(-1==id){
+        //断开所有信号连接
+        QObject::disconnect(this, nullptr);
+
         //QObject::disconnect(this, &QTcpSocket::disconnected, this, &anTcpSocket::onDisconnected);
         this->disconnectFromHost();
+
+        //有延迟delete disconnet's tcp 的风险(anTcpSocket 内存泄漏)
+        this->deleteLater();
     }
 
-    //有延迟delete disconnet's tcp 的风险(anTcpSocket 内存泄漏)
-    this->deleteLater();
 
 
     qDebug().noquote() << logdata;

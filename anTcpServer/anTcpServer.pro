@@ -34,6 +34,6 @@ HEADERS += \
     antcpserver.h \
     antcpsocket.h
 
-win32:VERSION = 1.0.0.1034  # major.minor.patch.build
+win32:VERSION = 1.0.0.1037  # major.minor.patch.build
 else:VERSION = 1.0.0        # major.minor.patch
 

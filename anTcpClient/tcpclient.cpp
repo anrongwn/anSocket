@@ -45,7 +45,7 @@ void TcpClient::onReadData()
 void TcpClient::onConnectHost(const QString &host, const int port)
 {
     this->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-    this->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
+    this->setSocketOption(QAbstractSocket::KeepAliveOption, 0);
     this->connectToHost(host, port);
 
     if (!this->waitForConnected(5000)){
