@@ -137,12 +137,14 @@ void anTcpSocket::onEnd(const qintptr id)
 QByteArray anTcpSocket::handler(QByteArray data, const QString &ip, const quint16 port)
 {
 
+    /*//模拟 占用cpu
     QElapsedTimer tm;
     tm.start();
 
     while(tm.elapsed() < 1){
 
     }
+    */
 
     data = "<<<< " + ip.toLocal8Bit() + " " + QByteArray::number(port) + " " + data + " " +  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ").toLocal8Bit();
     return data;

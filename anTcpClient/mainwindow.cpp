@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
     senddata_timer_ = new QTimer(this);
     QObject::connect(senddata_timer_, &QTimer::timeout, this, &MainWindow::senddata);
 
+    //控制最大内容行数，防止高频收发数据时，用尽内存的风险
+    ui->textEdit_echo->document()->setMaximumBlockCount(100);
 
     QObject::connect(this, &MainWindow::connectHost, &client_, &TcpClient::onConnectHost);
     QObject::connect(&client_, &TcpClient::recvData, this, &MainWindow::on_recvData);

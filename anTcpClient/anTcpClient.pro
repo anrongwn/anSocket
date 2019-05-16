@@ -43,5 +43,5 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:VERSION = 1.0.0.1035  # major.minor.patch.build
+win32:VERSION = 1.0.0.1036  # major.minor.patch.build
 else:VERSION = 1.0.0        # major.minor.patch
