@@ -19,6 +19,11 @@ anTcpSocket::anTcpSocket(QObject *parent):QTcpSocket(parent), socketDescriptor_(
 
 anTcpSocket::~anTcpSocket()
 {
+    QString logdata;
+    QTextStream log(&logdata);
+
+    log<<"anTcpSocket::~anTcpSocket(), tcp="<<(void*)this<<",th="<<QThread::currentThread();
+    qDebug().noquote() << logdata;
 }
 
 bool anTcpSocket::setSocketDescriptor(qintptr socketDescriptor, QAbstractSocket::SocketState socketState, QIODevice::OpenMode openMode)
@@ -101,12 +106,12 @@ void anTcpSocket::onSentData(const QByteArray &data, const qintptr id)
     qDebug().noquote() << logdata;
 }
 
-void anTcpSocket::onDisConTcp(const qintptr id)
+void anTcpSocket::onEnd(const qintptr id)
 {
     QString logdata;
     QTextStream log(&logdata);
 
-    log<<"anTcpSocket::onDisConTcp(),tcp="<<(void*)this<<", socketDescriptor="<<id<<",th="<<QThread::currentThread();
+    log<<"anTcpSocket::onEnd(),tcp="<<(void*)this<<", socketDescriptor="<<id<<",th="<<QThread::currentThread();
 
     //断开所有信号连接
     QObject::disconnect(this, nullptr);

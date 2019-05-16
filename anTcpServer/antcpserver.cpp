@@ -12,7 +12,7 @@ anTcpServer::anTcpServer(QObject *parent, int maxConnections):QTcpServer(parent)
 
 anTcpServer::~anTcpServer()
 {
-    emit this->sentDisConnect(-1);
+    emit this->endDisconnect(-1);
 }
 
 void anTcpServer::setMaxPendingConnections(int numConnections)
@@ -28,7 +28,7 @@ void anTcpServer::onClear()
 
     log<<"anTcpServer::onClear().";
 
-    emit this->sentDisConnect(-1);
+    emit this->endDisconnect(-1);
     anThreadPool::instance().clear();
     client_.clear();
 
@@ -49,7 +49,7 @@ void anTcpServer::onSockDisConnect(int handle, const QString &ip, quint16 port, 
     qDebug().noquote()<<logdata;
 
     //通知tcpsocket 做清理
-    emit sentDisConnect(handle);
+    emit endDisconnect(handle);
 }
 
 void anTcpServer::incomingConnection(qintptr socketDescriptor)
@@ -80,7 +80,7 @@ void anTcpServer::incomingConnection(qintptr socketDescriptor)
        quint16 port = tcpTemp->peerPort();
 
        connect(tcpTemp,&anTcpSocket::sockDisConnect, this,&anTcpServer::onSockDisConnect);//NOTE:断开连接的处理，从列表移除，并释放断开的Tcpsocket，此槽必须实现，线程管理计数也是考的他
-       connect(this,&anTcpServer::sentDisConnect,tcpTemp,&anTcpSocket::onDisConTcp);//断开信号
+       connect(this,&anTcpServer::endDisconnect,tcpTemp,&anTcpSocket::onEnd);//断开信号
 
        tcpTemp->moveToThread(th);
        client_.insert(socketDescriptor, tcpTemp);

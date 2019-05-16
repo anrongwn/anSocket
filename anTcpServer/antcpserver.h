@@ -18,7 +18,7 @@ signals:
     void readData(const int,const QString &, quint16, const QByteArray &);//发送获得用户发过来的数据
     void sockDisConnect(int ,QString ,quint16);//断开连接的用户信息
     void sentData(const QByteArray &,const int);//向scoket发送消息
-    void sentDisConnect(int i); //断开特定连接，并释放资源，-1为断开所有。
+    void endDisconnect(int i); //断开特定连接，并释放资源，-1为断开所有。
 
 public slots:
     void onClear(); //断开所有连接，线程计数器请0

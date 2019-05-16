@@ -21,7 +21,7 @@ public slots:
     void onDisconnected();
 
     void onSentData(const QByteArray& data ,const qintptr id);//发送信号的槽
-    void onDisConTcp(const qintptr id);
+    void onEnd(const qintptr id);
 
 private:
     QByteArray handler(QByteArray data, const QString &ip, const quint16 port);
