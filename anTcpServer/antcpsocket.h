@@ -1,7 +1,6 @@
 #ifndef ANTCPSOCKET_H
 #define ANTCPSOCKET_H
 #include <QTcpSocket>
-#include <QQueue>
 #include <QByteArray>
 #include <QDataStream>
 
@@ -23,8 +22,11 @@ public slots:
     void onSentData(const QByteArray& data ,const qintptr id);//发送信号的槽
     void onEnd(const qintptr id);
 
+    void onError(QAbstractSocket::SocketError socketError);
+
 private:
     QByteArray handler(QByteArray data, const QString &ip, const quint16 port);
+    static QVector<QByteArray> parse_run(anTcpSocket *handle);
 private:
     qintptr socketDescriptor_;
     QByteArray datas_;

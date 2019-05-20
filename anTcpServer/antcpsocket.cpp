@@ -4,16 +4,23 @@
 #include <QDateTime>
 #include <QHostAddress>
 #include <QThread>
+#include <QFuture>
+#include <QtConcurrent>
 #include <QString>
 #include <QTextStream>
 #include <QDebug>
 #include <QByteArray>
+#include <QVector>
+
 #include "antlv.h"
+
 
 anTcpSocket::anTcpSocket(QObject *parent):QTcpSocket(parent), socketDescriptor_(0)
 {
     QObject::connect(this, &QTcpSocket::readyRead, this, &anTcpSocket::onReadData);
     QObject::connect(this, &QTcpSocket::disconnected, this, &anTcpSocket::onDisconnected);
+
+     QObject::connect(this, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &anTcpSocket::onError);
 
 }
 
@@ -32,8 +39,26 @@ bool anTcpSocket::setSocketDescriptor(qintptr socketDescriptor, QAbstractSocket:
     return QTcpSocket::setSocketDescriptor(socketDescriptor, socketState, openMode);
 }
 
+QVector<QByteArray> anTcpSocket::parse_run(anTcpSocket *handle){
+    QVector<QByteArray> result;
+
+    while (!handle->datas_.isEmpty()){
+
+        QByteArray resp;
+        antlv::parse_package(handle->datas_, resp);
+        if (!resp.isEmpty()){
+            result.append(resp);
+        }
+    }
+
+    return result;
+}
+
 void anTcpSocket::onReadData()
 {
+    //QElapsedTimer tm;
+    //tm.start();
+
     QString logdata;
     QTextStream log(&logdata);
 
@@ -41,14 +66,45 @@ void anTcpSocket::onReadData()
 
     datas_ += this->readAll();
 
+
+    //启用并行处理，减少响应包延迟处理。可能增加了多客户端时，连接及时响应的风险。
+    QFuture<QVector<QByteArray> > result = QtConcurrent::run(QThreadPool::globalInstance(), parse_run, this);
+    result.waitForFinished();
+
+    QVector<QByteArray> respV = result.result();
+    for(auto it = respV.begin();it!=respV.end();++it){
+        QByteArray data(it->data(),it->length());
+        data  = handler(data, this->peerAddress().toString(), this->peerPort());
+
+        if (!data.isEmpty())
+        {
+
+            this->write(data);
+            bool r = this->waitForBytesWritten(1000);
+
+            if (r){
+                //log<<", echo write:" << data;
+            }
+            else{
+                log<<", echo write failed.";
+                qDebug().noquote() << logdata;
+            }
+        }
+
+    }
+    //qDebug().noquote() << logdata;
+
+    /*
     QByteArray data;
     antlv::antlv_type type = antlv::parse_package(datas_, data);
+
+
     switch (type){
     case antlv::package_type::heart_beat:
-        log<<", recv heartbeat package,";
+        //log<<", recv heartbeat package,";
         break;
     case antlv::package_type::cmd_requst:
-        log <<", recv data: "<<data;
+        //log <<", recv data: "<<data;
         data  = handler(data, this->peerAddress().toString(), this->peerPort());
         break;
     case antlv::package_type::unknow:
@@ -59,18 +115,28 @@ void anTcpSocket::onReadData()
 
     if (!data.isEmpty())
     {
+
         this->write(data);
         bool r = this->waitForBytesWritten(1000);
+
         if (r){
-            log<<", echo write:" << data;
+            //log<<", echo write:" << data;
         }
         else{
             log<<", echo write failed.";
         }
     }
-    log<<",th="<<QThread::currentThread();
 
-    qDebug().noquote() << logdata;
+    log<<",parse_package elapsed="<<tm.elapsed();
+    //数据异常时输出日志
+    if (datas_.size())
+    {
+        log<<",datas = "<< datas_.size()<<",th="<<QThread::currentThread();
+
+        qDebug().noquote() << logdata;
+    }
+    */
+
 }
 
 void anTcpSocket::onDisconnected()
@@ -130,6 +196,28 @@ void anTcpSocket::onEnd(const qintptr id)
     }
 
 
+
+    qDebug().noquote() << logdata;
+}
+
+void anTcpSocket::onError(QAbstractSocket::SocketError socketError)
+{
+    QString logdata;
+    QTextStream log(&logdata);
+
+    log<<"anTcpSocket::onError("<<socketError<<"), socketDescriptor=" << socketDescriptor_ <<",errorstring="<<this->errorString()<<",th="<<QThread::currentThread();
+
+
+    /*//
+    emit sockDisConnect(socketDescriptor_, this->peerAddress().toString(), this->peerPort(), QThread::currentThread());//发送断开连接的用户信息
+    */
+    /*
+    if (QAbstractSocket::RemoteHostClosedError==socketError){
+        this->disconnectFromHost();
+        if (QAbstractSocket::UnconnectedState!=this->state())
+            this->waitForDisconnected(1000);
+    }
+    */
 
     qDebug().noquote() << logdata;
 }

@@ -3,7 +3,7 @@
 TcpClient::TcpClient(QObject *parent):QTcpSocket(parent)
 {
     QObject::connect(this, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &TcpClient::onError);
-    QObject::connect(this, &QTcpSocket::readyRead, this, &TcpClient::onReadData);
+    //QObject::connect(this, &QTcpSocket::readyRead, this, &TcpClient::onReadData);//不使用信号，当数据发送太快时，容易造成socket timeout error
 }
 
 TcpClient::~TcpClient()
@@ -20,7 +20,7 @@ TcpClient::~TcpClient()
 void TcpClient::onError(QAbstractSocket::SocketError socketError)
 {
     QString str(QString::number(this->peerPort()));
-    str += " : erro : ";
+    str += QString(" : erro : %1, ").arg(socketError);
     str += this->errorString();
 
     if (QAbstractSocket::RemoteHostClosedError==socketError){

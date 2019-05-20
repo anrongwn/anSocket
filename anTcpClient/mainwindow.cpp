@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QRegExp rx("^((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)$");
     ui->lineEdit_ip->setValidator(new QRegExpValidator(rx, this));
-    ui->lineEdit_ip->setText(QStringLiteral("127.0.0.1"));
+    ui->lineEdit_ip->setText(QStringLiteral("192.168.34.122"));
 
     QRegExp rx2("[0-9]\\d{0,5}");
     ui->lineEdit_port->setValidator(new QRegExpValidator(rx2, this));
@@ -79,6 +79,13 @@ void MainWindow::on_clientError(const QString &erro)
 {
     ui->textEdit_echo->append(erro);
     //qDebug()<<"===MainWindow::on_clientError " << erro;
+
+    if (heartbeat_timer_->isActive()){
+        heartbeat_timer_->stop();
+    }
+    if (senddata_timer_->isActive()){
+        senddata_timer_->stop();
+    }
 }
 
 void MainWindow::on_connected(const int port)
@@ -128,13 +135,29 @@ void MainWindow::on_pushButton_send_clicked()
 
     client_.write(cmd);
     //client_.write(data.toLocal8Bit());
-    if (client_.waitForBytesWritten(1000)){
+    if (client_.waitForBytesWritten(5000)){
         ui->textEdit_echo->append(QString("send data:%1 >>>succeed.").arg(data));
     }
     else {
         ui->textEdit_echo->append(QString("send data:1% >>>failed.").arg(data));
+        return;
     }
 
+    //同步收
+    QString echo;
+    if (client_.bytesAvailable()){
+        echo += client_.readAll();
+    }
+
+    if (client_.waitForReadyRead(1000)){
+        echo += client_.readAll();
+
+        on_recvData(echo);
+    }
+    else {
+        ui->textEdit_echo->append(QString("read data failed."));
+        return;
+    }
 
 }
 
@@ -185,14 +208,22 @@ void MainWindow::heartbeat()
 
     client_.write(cmd);
     if (client_.waitForBytesWritten(1000)){
-        //ui->textEdit_echo->append(QString("send data:%1 >>>succeed.").arg(data));
 
-        /*
-        QByteArray resp = client_.readAll();
-        if (!client_.waitForReadyRead(3000)){
-            ui->textEdit_echo->append(QString("recv heartbeat package failed."));
+        //同步收
+        QString echo;
+        if (client_.bytesAvailable()){
+            echo += client_.readAll();
         }
-        */
+
+        if (client_.waitForReadyRead(1000)){
+            echo += client_.readAll();
+
+            on_recvData(echo);
+        }
+        else {
+            ui->textEdit_echo->append(QString("read heartbeat failed."));
+            return;
+        }
 
     }
     else {
@@ -211,7 +242,10 @@ void MainWindow::senddata()
 
 void MainWindow::on_pushButton_send_2_clicked()
 {
-    if (senddata_timer_->isActive()) return ;
+    if (senddata_timer_->isActive()) {
+        senddata_timer_->stop();
+        return ;
+    }
 
     senddata_timer_->start(10);
 }

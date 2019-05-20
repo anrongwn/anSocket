@@ -98,7 +98,7 @@ void anTcpServer::incomingConnection(qintptr socketDescriptor)
        tcpTemp->moveToThread(th);
        client_.insert(socketDescriptor, tcpTemp);
 
-       log<<", th="<<th<<",tcp="<<tcpTemp<<", socketDescriptor="<<socketDescriptor<<",ip="<<ip<<",port="<<port;
+       log<<", th="<<th<<",tcp="<<tcpTemp<<", socketDescriptor="<<socketDescriptor<<",ip="<<ip<<",port="<<port<<",th="<<QThread::currentThread();
 
        emit connectClient(socketDescriptor,ip,port);
 

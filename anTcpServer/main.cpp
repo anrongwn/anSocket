@@ -40,14 +40,21 @@ anlogger& getlogger() {
 }
 void anMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    //QByteArray localMsg = msg.toLocal8Bit();
+    //return ;
+
+#ifdef DEBUG
     const char *file = context.file ? context.file : "";
     const char *function = context.function ? context.function : "";
+#endif
 
     QString data;
     QTextStream out(&data);
 
+#ifdef DEBUG
     out << msg << " [" << file << ", " << function << ", " << context.line << "]";
+#else
+    out << msg ;
+#endif
 
     switch (type) {
     case QtDebugMsg:

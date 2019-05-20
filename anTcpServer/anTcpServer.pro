@@ -1,5 +1,5 @@
 QT -= gui
-QT += network
+QT += network concurrent
 
 CONFIG += c++11
 CONFIG -= app_bundle
@@ -34,6 +34,6 @@ HEADERS += \
     antcpserver.h \
     antcpsocket.h
 
-win32:VERSION = 1.0.0.1038  # major.minor.patch.build
+win32:VERSION = 1.0.0.55  # major.minor.patch.build
 else:VERSION = 1.0.0        # major.minor.patch
 
